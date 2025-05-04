@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
 
 function Grid() {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
+  const days=['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
   const today=new Date();
+  const today=new Date();
+
   const [day,setDay]=useState(today.getDay());
   const [month,setMon]=useState(today.getMonth());
   const [year,setYear]=useState(today.getFullYear());
-  const [selected,setSelect]=useState(today.getDate());
+  const [selected,setSelect]=useState(`${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`);
 
   const calendar=[];
+  const daysInMonth = new Date(curryear, currmonth + 1, 0).getDate();
 
   for (let i=0;i<day;i++) {
     calendar.push('');
   }
 
   
-  for (let i=1;i<=month;i++) {
+  for (let i=1;i<=daysInMonth;i++) {
     calendar.push(i);
   }
 
@@ -63,6 +66,22 @@ function Grid() {
   
   
   return(
+
+    <>
+      <div className='display'>
+        <h2>Date: {selected}</h2>
+        <button className='btn' onClick={prev}>prev</button>
+        <button className='btn' onClick={next}>next</button>
+      </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    </>
 
 
 
