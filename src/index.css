@@ -1,0 +1,23 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0px;
+  margin-top: 10px;
+  font-size: 30px;
+}
+
+.cell {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.header {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.empty {
+  background: transparent;
+  border: none;
+}
