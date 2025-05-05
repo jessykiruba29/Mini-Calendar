@@ -1,101 +1,92 @@
-import React, { useState } from 'react';
+import React,{useState} from 'react';
 
-function Grid() {
-  const days=['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
-  const today=new Date();
+function Grid(){
+  const days=['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
   const today=new Date();
 
-  const [day,setDay]=useState(today.getDay());
+  const [day,setDay]=useState(today.getDate());
   const [month,setMon]=useState(today.getMonth());
   const [year,setYear]=useState(today.getFullYear());
-  const [selected,setSelect]=useState(`${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`);
+  const [selected,setSelect]=useState(`${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`);
+
+  const updateDate=(d,m,y)=>{
+    const nd=new Date(y,m,d);
+    setSelect(nd);
+  };
+
+  const next=()=>{
+    const nextMonth=month===11?0:month+1;
+    const nextYear=month===11?year+1:year;
+    updateDate(1,nextMonth,nextYear);
+  };
+
+  const prev=()=>{
+    const prevMonth=month===0?11:month-1;
+    const prevYear=month===0?year-1:year;
+    updateDate(1,prevMonth,prevYear);
+  };
+
+  const popup=(d)=>{
+    setSelect(`${d}-${month+1}-${year}`);
+  };
 
   const calendar=[];
-  const daysInMonth = new Date(curryear, currmonth + 1, 0).getDate();
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
 
-  for (let i=0;i<day;i++) {
+  for(let i=0;i<firstDay;i++){
     calendar.push('');
   }
 
-  
-  for (let i=1;i<=daysInMonth;i++) {
+  for(let i=1;i<=daysInMonth;i++){
     calendar.push(i);
   }
 
-
-  const update=(d,m,y)=>{
-    const nd=new Date(y,m,d);
-    setDay(nd.getDay());
-    setMon(nd.getMonth());
-    setYear(nd.getFullYear());
-    setSelect(`${day}-${month+1}-${year}`);
-  }
-  const next=()=>{
-    if(month==11){
-      setMon(0);
-      setYear(year+1);
-
-    }else{
-      setMon(month+1);
-    }
-    update(1,month,year);
-
-    
-  }
-  const prev=()=>{
-    if(month==0){
-      setMon(11);
-      setYear(year-1);
-
-    }else{
-      setMon(month-1);
-    }
-    update(1,month,year);
-
-  }
-
-  const popup=(day) => {
-    setSelect(`${day}-${month + 1}-${year}`); 
-    alert(`Selected Date: ${day}-${month + 1}-${year}`); 
-  };
-  
-
-
-  
-  
-  
-  
   return(
-
     <>
-      <div className='display'>
-        <h2>Date: {selected}</h2>
-        <button className='btn' onClick={prev}>prev</button>
-        <button className='btn' onClick={next}>next</button>
+      <h2 style={{textAlign:'center'}}>Date:{selected}</h2>
+      <div style={{textAlign:'center',marginBottom:'10px'}}>
+        <button onClick={prev}>Prev</button>
+        <span style={{margin:'0 15px'}}>{month+1}/{year}</span>
+        <button onClick={next}>Next</button>
       </div>
-    
-    
-    
-    
-    
-    
-    
-    
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'10px',marginTop:'20px'}}>
+        {days.map(day=>(
+          <div key={day} style={{fontWeight:'bold',textAlign:'center'}}>{day}</div>
+        ))}
+
+        {calendar.map((date,index)=>{
+          const isToday=date===today.getDate()&&month===today.getMonth()&&year===today.getFullYear();
+          const isSelected=date===day;
+
+          return(
+            <div
+              key={index}
+              onClick={()=>{
+                if(date){
+                  updateDate(date,month,year);
+                  popup(date);
+                }
+              }}
+              style={{
+                padding:'10px',
+                border:'1px solid #ccc',
+                backgroundColor:isSelected?'beige':isToday?'lightgreen':'#fff',
+                textAlign:'center',
+                cursor:date?'pointer':'default'
+              }}>
+              {date}
+            </div>
+          );
+        })}
+      </div>
     </>
-
-
-
-
   );
-  
-  
-  
-  
-  
-  
-  
 }
+
 export default Grid;
+
   
   
   
