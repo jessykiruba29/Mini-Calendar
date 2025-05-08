@@ -1,357 +1,184 @@
 import React,{useState} from 'react';
 
 function Grid(){
-  const days=['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
-  const today=new Date();
+	const days=['Sun','Mon','Tue','Wed','Thur','Fri','Sat'];
+	const today=new Date();
 
-  const [day,setDay]=useState(today.getDate());
-  const [month,setMon]=useState(today.getMonth());
-  const [year,setYear]=useState(today.getFullYear());
-  const [selected,setSelect]=useState(`${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`);
+	const [day,setDay]=useState(today.getDate());
+	const [month,setMon]=useState(today.getMonth());
+	const [year,setYear]=useState(today.getFullYear());
+	const [selected,setSelect]=useState({day:today.getDate(),month:today.getMonth(),year:today.getFullYear()});
+	const [tasksByDate,setTasksByDate]=useState({});
+	const [newtask,setnew]=useState("");
+	const [showPopup,setShowPopup]=useState(false);
 
-  const updateDate=(d,m,y)=>{
-    const nd=new Date(y,m,d);
-    setSelect(nd);
-  };
+	const updateDate=(d,m,y,openpopup=true)=>{
+		setDay(d);
+		setMon(m);
+		setYear(y);
+		setSelect({day:d,month:m,year:y});
+    if(openpopup){
+		setShowPopup(true);}
+	};
 
-  const next=()=>{
-    const nextMonth=month===11?0:month+1;
-    const nextYear=month===11?year+1:year;
-    updateDate(1,nextMonth,nextYear);
-  };
+	const next=()=>{
+		const nextMonth=month===11?0:month+1;
+		const nextYear=month===11?year+1:year;
+		updateDate(1,nextMonth,nextYear,false);
+	};
 
-  const prev=()=>{
-    const prevMonth=month===0?11:month-1;
-    const prevYear=month===0?year-1:year;
-    updateDate(1,prevMonth,prevYear);
-  };
+	const prev=()=>{
+		const prevMonth=month===0?11:month-1;
+		const prevYear=month===0?year-1:year;
+		updateDate(1,prevMonth,prevYear,false);
+	};
 
-  const popup=(d)=>{
-    setSelect(`${d}-${month+1}-${year}`);
-  };
+	const add=()=>{
+		if(newtask.trim()==="")return;
+		const key=`${selected.day}-${selected.month+1}-${selected.year}`;
+		const updatedTasks=[...(tasksByDate[key]||[]),{name:newtask}];
+		setTasksByDate(prev=>({...prev,[key]:updatedTasks}));
+		setnew("");
+	};
 
-  const calendar=[];
-  const firstDay=new Date(year,month,1).getDay();
-  const daysInMonth=new Date(year,month+1,0).getDate();
+	const remove=(index)=>{
+		const key=`${selected.day}-${selected.month+1}-${selected.year}`;
+		const updated=[...(tasksByDate[key]||[])];
+		updated.splice(index,1);
+		setTasksByDate(prev=>({...prev,[key]:updated}));
+	};
 
-  for(let i=0;i<firstDay;i++){
-    calendar.push('');
-  }
+	const namechange=(e)=>{
+		setnew(e.target.value);
+	};
 
-  for(let i=1;i<=daysInMonth;i++){
-    calendar.push(i);
-  }
+	const calendar=[];
+	const firstDay=new Date(year,month,1).getDay();
+	const daysInMonth=new Date(year,month+1,0).getDate();
 
-  return(
-    <>
-      <h2 style={{textAlign:'center'}}>Date:{selected}</h2>
-      <div style={{textAlign:'center',marginBottom:'10px'}}>
-        <button onClick={prev}>Prev</button>
-        <span style={{margin:'0 15px'}}>{month+1}/{year}</span>
-        <button onClick={next}>Next</button>
-      </div>
+	for(let i=0;i<firstDay;i++){
+		calendar.push('');
+	}
+	for(let i=1;i<=daysInMonth;i++){
+		calendar.push(i);
+	}
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'10px',marginTop:'20px'}}>
-        {days.map(day=>(
-          <div key={day} style={{fontWeight:'bold',textAlign:'center'}}>{day}</div>
-        ))}
+	return(
+		<>
+    <div className='full' style={{background: 'linear-gradient(to bottom right,rgb(40, 47, 110),rgb(29, 66, 83),rgb(134, 193, 203))',
+  minHeight: '97vh',
+  padding: '10px'}}>
+			<h2 style={{textAlign:'center',fontSize:'45px',color:'rgb(157, 206, 212)'}}>{new Date(year,month).toLocaleString('default',{month:'long'})} {year}</h2>
+			<div style={{textAlign:'center',marginBottom:'10px'}}>
+				<button onClick={prev} style={{padding:'10px',borderRadius:'18px',fontSize:'15px'}}>Prev</button>
+				<span style={{margin:'0 15px',fontSize:'20px',color:'rgb(157, 206, 212)'}}>{selected.day}-{selected.month+1}-{selected.year}</span>
+				<button onClick={next}style={{padding:'10px',borderRadius:'18px',fontSize:'15px'}}>Next</button>
+			</div>
 
-        {calendar.map((date,index)=>{
-          const isToday=date===today.getDate()&&month===today.getMonth()&&year===today.getFullYear();
-          const isSelected=date===day;
+			<div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'3px',marginTop:'45px',fontSize:'25px',padding:'1px'}}>
+				{days.map(day=><div key={day} style={{fontWeight:'bold',textAlign:'center',color:'rgb(157, 206, 212)',margin:'2px'}}>{day}</div>)}
 
-          return(
-            <div
-              key={index}
-              onClick={()=>{
-                if(date){
-                  updateDate(date,month,year);
-                  popup(date);
-                }
-              }}
-              style={{
-                padding:'10px',
-                border:'1px solid #ccc',
-                backgroundColor:isSelected?'beige':isToday?'lightgreen':'#fff',
-                textAlign:'center',
-                cursor:date?'pointer':'default'
-              }}>
-              {date}
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
+				{calendar.map((date,index)=>{
+					const isToday=date===today.getDate()&&month===today.getMonth()&&year===today.getFullYear();
+					const isSelected=date===selected.day&&month===selected.month&&year===selected.year;
+					const key=`${date}-${month+1}-${year}`;
+					const taskCount=(tasksByDate[key]?.length)||0;
 
-export default Grid;
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  /*const today = new Date();
-  const [currday, setday] = useState(today.getDate());
-  const [currmonth, setmonth] = useState(today.getMonth());
-  const [curryear, setyear] = useState(today.getFullYear());
-  const [selected, setselected] = useState('');
-  const [date, selectdate] = useState('');
-  const [isopenPopup, setIsPopupOpen] = useState(false);
-
-  const firstday = new Date(curryear, currmonth, 1).getDay();
-  const daysInMonth = new Date(curryear, currmonth + 1, 0).getDate();
-  const calendar = [];
-
-  //for days before date 1, cells have to be blank
-  for (let i = 0; i < firstday; i++) {
-    calendar.push('');
-  }
-
-  //if dates are valid, then fill the cell with i
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendar.push(i);
-  }
-
-  // for appearance of date
-  const updateDate = (day, month, year) => {
-    const nd = new Date(year, month, day);
-    setday(nd.getDate());
-    setmonth(nd.getMonth());
-    setyear(nd.getFullYear());
-    setselected(`${nd.getDate()}-${nd.getMonth() + 1}-${nd.getFullYear()}`);
-  };
-
-  //go to previous day
-  const handlePrev = () => {
-    const newMonth = currmonth === 0 ? 11 : currmonth - 1;
-    const newYear = currmonth === 0 ? curryear - 1 : curryear;
-    updateDate(1, newMonth, newYear);
-  };
-  //next day
-  const handleNext = () => {
-    const newMonth = currmonth === 11 ? 0 : currmonth + 1;
-    const newYear = currmonth === 11 ? curryear + 1 : curryear;
-    updateDate(1, newMonth, newYear);
-  };
-
-  const popup = (date) => {
-    setselected(`${date}-${currmonth + 1}-${curryear}`); 
-    alert(`Selected Date: ${date}-${currmonth + 1}-${curryear}`); 
-  };
-
-
-  
-  return (
-    <>
-      <h2>Date: {selected || `${currday}-${currmonth + 1}-${curryear}`}</h2> 
-      <button onClick={handlePrev}>Prev</button>
-      <button onClick={handleNext}>Next</button>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', marginTop: '20px' }}>
-       
-        {days.map((day) => (
-          <div key={day} style={{ fontWeight: 'bold' }}>{day}</div>
-        ))}
-
-        
-        {calendar.map((date, index) => {
-          const isToday =
-            date === today.getDate() &&
-            currmonth === today.getMonth() &&
-            curryear === today.getFullYear();
-
-          const isSelected = date === currday;
-
-          return (
-            <div
-              key={index}
-              onClick={() => date && updateDate(date, currmonth, curryear) && popup(date)}
-              
-              style={{
-                padding: '10px',
-                border: '1px solid #ccc',
-                backgroundColor: isSelected ? 'beige' : isToday ? 'green' : '#fff',
+					return(
+						<div
+							key={index}
+							onClick={()=>{
+								if(date){
+									updateDate(date,month,year,true);
+								}
+							}}
+							style={{
+								padding:'23px',
+								
+								backgroundColor:isSelected?'rgb(44, 90, 106)':isToday?'rgb(228, 230, 230)':'rgb(178, 213, 218)',
+                color:isSelected?'white':isToday?'black':'black',
+								textAlign:'center',
+								cursor:date?'pointer':'default',
+								position:'relative',
                 
-                  
-                  border: '1px solid #ccc',
-                  
-                  cursor: date ? 'pointer' : 'default'
-                
-              }}>
+							}}>
+							<div>{date}</div>
+							{taskCount>0&&(
+								<div style={{fontSize:'15px',marginTop:'2px',
+                  color:isSelected?'rgb(244, 240, 240)':'rgb(43, 41, 41)'
+
+                }}>
+									{taskCount} task{taskCount>1?'s':''}
+								</div>
+							)}
+						</div>
+					);
+				})}
+			</div>
+
+			{showPopup&&(
+				<div style={{
+					position:'fixed',
+					top:'50%',
+					left:'50%',
+					transform:'translate(-50%,-50%)',
+					backgroundColor:'rgb(237, 246, 247)',
+					padding:'50px',
+					border:'2px solid #444',
+					borderRadius:'8px',
+					boxShadow:'0 0 10px rgba(0,0,0,0.3)',
+					height:'300px',
+          width:'270px',
+          fontSize:'20px'
+
+				}}>
+					<h3 style={{fontSize:'27px',color:'rgb(30, 47, 79)',textAlign:'center'}}>Tasks for {selected.day}-{selected.month+1}-{selected.year}</h3>
+					<input
+						type="text"
+						placeholder="Enter task..."
+						value={newtask}
+						onChange={namechange}
             
-              {date}
-            </div>
-          );
-        })}
-        
-
+						style={{padding:'5px',fontSize:'20px'}}
+					/>
+					<button onClick={add}>Add</button>
+					<ul>
+						{(tasksByDate[`${selected.day}-${selected.month+1}-${selected.year}`]||[]).map((t,index)=>(
+							<li key={index}>
+								{t.name}
+								<span onClick={()=>remove(index)} style={{marginLeft:'10px',cursor:'pointer'}}>✘</span>
+							</li>
+						))}
+					</ul>
+					<button onClick={()=>setShowPopup(false)} style={{marginTop:'10px'}}>Close</button>
+				</div>
+			)}
       </div>
-      
-     
-    </>
-  );
+		</>
+
+	);
 }
 
 export default Grid;
-    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*function Grid({ year, month }) {
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const [currMonth, setCurrMonth] = useState(month);
-  const [currYear, setCurrYear] = useState(year);
-  const [tasks, setTasks] = useState({});
-  const [selected, setSelected] = useState(null);
-  const [newTask, setNewTask] = useState("");
-
-  const date = new Date(currYear, currMonth);
-  const firstDay = new Date(currYear, currMonth, 1).getDay();
-  const totalDays = new Date(currYear, currMonth + 1, 0).getDate();
-
-  const handlePrev = () => {
-    if (currMonth === 0) {
-      setCurrMonth(11);
-      setCurrYear(currYear - 1);
-    } else {
-      setCurrMonth(currMonth - 1);
-    }
-    setSelected(null);
-  };
-
-  const handleNext = () => {
-    if (currMonth === 11) {
-      setCurrMonth(0);
-      setCurrYear(currYear + 1);
-    } else {
-      setCurrMonth(currMonth + 1);
-    }
-    setSelected(null);
-  };
-
-  const handleDateClick = (day) => {
-    const dateKey = `${currYear}-${currMonth + 1}-${day}`;
-    setSelected(dateKey);
-    setNewTask("");
-  };
-
-  const addTask = () => {
-    if (!selected || newTask.trim() === "") return;
-    setTasks((prev) => ({
-      ...prev,
-      [selected]: [...(prev[selected] || []), newTask],
-    }));
-    setNewTask("");
-  };
 
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
 
-  const cells = [];
-  for (let i = 0; i < firstDay; i++) {
-    cells.push(<div key={`empty-${i}`} className="cell empty"></div>);
-  }
-  for (let d = 1; d <= totalDays; d++) {
-    const dateKey = `${currYear}-${currMonth + 1}-${d}`;
-    const taskCount = tasks[dateKey]?.length || 0;
-    cells.push(
-      <div
-        key={d}
-        className="cell"
-        onClick={() => handleDateClick(d)}
-        style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px" }}
-      >
-        {d}
-        {taskCount > 0 && <div style={{ fontSize: '0.7em', color: 'green' }}>{taskCount} task(s)</div>}
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <h2>{date.toLocaleString('default', { month: 'long' })} {currYear}</h2>
-
-      <div>
-        <button onClick={handlePrev}>Prev</button>
-        <button onClick={handleNext}>Next</button>
-      </div>
-
-      <div className="grid" onClick="handle-the-click" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px', margin: '20px 0' }}>
-        {days.map(day => <div key={day} className="cell header" style={{ fontWeight: 'bold' }}>{day}</div>)}
-        {cells}
-      </div>
-
-      {selected && (
-        <div>
-          <h3>Tasks for {selected}</h3>
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            placeholder="Enter a task"
-          />
-          <button onClick={addTask}>Add Task</button>
-          <ul>
-            {(tasks[selected] || []).map((t, i) => (
-              <li key={i}>{t}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default Grid;*/
+  
