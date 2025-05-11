@@ -36,7 +36,7 @@ const Signup=()=>{
                 handleSubmit();}
 
             }>SIGNUP</button>
-            <Link className='lnk' to="/login">Go to Login page</Link>
+            <Link className='lnk' to="/">Go to Login page</Link>
             
             <br>
             </br><br></br>
